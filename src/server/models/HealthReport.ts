@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
+import "./User";
 
 export interface IHealthReport extends Document {
   _id: Types.ObjectId;
