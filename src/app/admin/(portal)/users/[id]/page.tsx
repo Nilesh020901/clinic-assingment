@@ -7,9 +7,20 @@ import { getToken } from "@/lib/auth";
 import { apiRequest } from "@/lib/api";
 import { HealthReport, User } from "@/types";
 import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import { HealthReportCard } from "@/components/HealthReportCard";
 import { formatDate } from "@/lib/utils";
-import { ArrowLeft, Mail, Phone, Calendar } from "lucide-react";
+import {
+  ArrowLeft,
+  Mail,
+  Phone,
+  Calendar,
+  User as UserIcon,
+  Briefcase,
+  MapPin,
+  Heart,
+  Sparkles,
+} from "lucide-react";
 
 interface UserDetailsResponse {
   user: User & { _id: string; createdAt: string };
@@ -57,7 +68,7 @@ export default function AdminUserDetailPage() {
     return (
       <div className="space-y-4">
         <Link href="/admin/users" className="inline-flex items-center gap-1 text-brand-600 text-sm">
-          <ArrowLeft className="h-4 w-4" /> Back to users
+          <ArrowLeft className="h-4 w-4" /> Back to patients
         </Link>
         <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
           {error || "User not found"}
@@ -78,27 +89,63 @@ export default function AdminUserDetailPage() {
         <ArrowLeft className="h-4 w-4" /> Back to patients
       </Link>
 
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{user.name}</h1>
-        <p className="mt-1 text-gray-600">Patient details and health reports.</p>
+      <div className="flex justify-between items-center flex-wrap gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{user.name}</h1>
+            <Badge className="bg-brand-50 text-brand-700 border-brand-200 font-mono">
+              ID: {user.client_id}
+            </Badge>
+          </div>
+          <p className="mt-1 text-gray-600">Patient demographics, treatment focus, and health records.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card title="Patient Info" className="lg:col-span-1">
+        <Card title="Patient Profile" className="lg:col-span-1">
           <div className="space-y-4">
             <InfoRow icon={Mail} label="Email" value={user.email} />
-            {user.phone && <InfoRow icon={Phone} label="Phone" value={user.phone} />}
-            {user.dateOfBirth && (
-              <InfoRow
-                icon={Calendar}
-                label="Date of Birth"
-                value={formatDate(user.dateOfBirth)}
-              />
-            )}
-            <InfoRow icon={Calendar} label="Member Since" value={formatDate(user.createdAt)} />
-            <div className="pt-2 border-t border-gray-100">
-              <p className="text-sm text-gray-500">Total Reports</p>
-              <p className="text-2xl font-bold text-brand-600">{reportCount}</p>
+            <InfoRow icon={Phone} label="Mobile" value={user.phone || user.mobile || "—"} />
+            
+            <div className="grid grid-cols-2 gap-4">
+              <InfoRow icon={UserIcon} label="Age" value={user.age ? `${user.age} yrs` : "—"} />
+              <InfoRow icon={UserIcon} label="Gender" value={user.gender || "—"} />
+            </div>
+
+            <InfoRow icon={Briefcase} label="Occupation" value={user.occupation || "—"} />
+            <InfoRow 
+              icon={MapPin} 
+              label="Location" 
+              value={user.city && user.state ? `${user.city}, ${user.state}` : "—"} 
+            />
+
+            <div className="pt-3 border-t border-gray-100 space-y-3">
+              <div className="flex items-start gap-3">
+                <Heart className="h-4 w-4 text-rose-500 mt-0.5" />
+                <div>
+                  <p className="text-xs text-gray-500">Health Condition</p>
+                  <p className="text-sm font-semibold text-gray-950">{user.health_condition || "None listed"}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Sparkles className="h-4 w-4 text-amber-500 mt-0.5" />
+                <div>
+                  <p className="text-xs text-gray-500">Beauty Goal</p>
+                  <p className="text-sm font-semibold text-gray-950">{user.beauty_goal || "None listed"}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-gray-500">Total Vitals Reports</p>
+                <p className="text-2xl font-extrabold text-brand-600 mt-0.5">{reportCount}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Joined</p>
+                <p className="text-sm font-semibold text-gray-950 mt-1">{formatDate(user.createdAt)}</p>
+              </div>
             </div>
           </div>
         </Card>
@@ -115,28 +162,32 @@ export default function AdminUserDetailPage() {
       </div>
 
       {reports.length > 0 && (
-        <Card title="Report History" subtitle={`${reportCount} total reports`}>
+        <Card title="Vitals Report History" subtitle={`${reportCount} total reports`}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100">
                   <th className="text-left py-3 px-2 font-medium text-gray-500">Date</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">BP</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Heart Rate</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Glucose</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-500">Report ID</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-500">Hemoglobin</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-500">Vitamin D</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-500">Blood Sugar</th>
                   <th className="text-left py-3 px-2 font-medium text-gray-500">Cholesterol</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-500">Creatinine</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-500">BMI</th>
                 </tr>
               </thead>
               <tbody>
                 {reports.map((report) => (
                   <tr key={report._id} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-3 px-2">{formatDate(report.reportDate)}</td>
-                    <td className="py-3 px-2">
-                      {report.bloodPressureSystolic}/{report.bloodPressureDiastolic}
-                    </td>
-                    <td className="py-3 px-2">{report.heartRate} bpm</td>
-                    <td className="py-3 px-2">{report.glucose} mg/dL</td>
+                    <td className="py-3 px-2 font-medium text-gray-900">{formatDate(report.report_date)}</td>
+                    <td className="py-3 px-2 text-gray-600">{report.report_id}</td>
+                    <td className="py-3 px-2">{report.hemoglobin} g/dL</td>
+                    <td className="py-3 px-2">{report.vitamin_d} ng/mL</td>
+                    <td className="py-3 px-2">{report.blood_sugar} mg/dL</td>
                     <td className="py-3 px-2">{report.cholesterol} mg/dL</td>
+                    <td className="py-3 px-2">{report.creatinine} mg/dL</td>
+                    <td className="py-3 px-2">{report.bmi}</td>
                   </tr>
                 ))}
               </tbody>
@@ -155,7 +206,7 @@ function InfoRow({
 }: {
   icon: React.ElementType;
   label: string;
-  value: string;
+  value: string | number;
 }) {
   return (
     <div className="flex items-start gap-3">

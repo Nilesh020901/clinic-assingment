@@ -3,16 +3,18 @@ import "./User";
 
 export interface IHealthReport extends Document {
   _id: Types.ObjectId;
+  report_id: string;
+  client_id: number;
   userId: Types.ObjectId;
-  reportDate: Date;
-  bloodPressureSystolic: number;
-  bloodPressureDiastolic: number;
-  heartRate: number;
-  temperature: number;
-  weight: number;
-  glucose: number;
+  report_date: Date;
+  hemoglobin: number;
+  vitamin_d: number;
   cholesterol: number;
-  notes?: string;
+  blood_sugar: number;
+  creatinine: number;
+  urine_protein: string;
+  bmi: number;
+  doctor_notes?: string;
   uploadedBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -20,63 +22,61 @@ export interface IHealthReport extends Document {
 
 const healthReportSchema = new Schema<IHealthReport>(
   {
+    report_id: {
+      type: String,
+      required: [true, "Report ID is required"],
+      unique: true,
+      index: true,
+    },
+    client_id: {
+      type: Number,
+      required: [true, "Client ID is required"],
+      index: true,
+    },
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
       index: true,
     },
-    reportDate: {
+    report_date: {
       type: Date,
       required: [true, "Report date is required"],
       index: true,
     },
-    bloodPressureSystolic: {
+    hemoglobin: {
       type: Number,
       required: true,
-      min: 50,
-      max: 300,
     },
-    bloodPressureDiastolic: {
+    vitamin_d: {
       type: Number,
       required: true,
-      min: 30,
-      max: 200,
-    },
-    heartRate: {
-      type: Number,
-      required: true,
-      min: 30,
-      max: 250,
-    },
-    temperature: {
-      type: Number,
-      required: true,
-      min: 90,
-      max: 110,
-    },
-    weight: {
-      type: Number,
-      required: true,
-      min: 1,
-      max: 500,
-    },
-    glucose: {
-      type: Number,
-      required: true,
-      min: 20,
-      max: 600,
     },
     cholesterol: {
       type: Number,
       required: true,
-      min: 50,
-      max: 500,
     },
-    notes: {
+    blood_sugar: {
+      type: Number,
+      required: true,
+    },
+    creatinine: {
+      type: Number,
+      required: true,
+    },
+    urine_protein: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    bmi: {
+      type: Number,
+      required: true,
+    },
+    doctor_notes: {
       type: String,
       trim: true,
-      maxlength: 500,
+      maxlength: 1000,
     },
     uploadedBy: {
       type: Schema.Types.ObjectId,
@@ -89,7 +89,8 @@ const healthReportSchema = new Schema<IHealthReport>(
   }
 );
 
-healthReportSchema.index({ userId: 1, reportDate: -1 });
+healthReportSchema.index({ userId: 1, report_date: -1 });
+healthReportSchema.index({ client_id: 1, report_date: -1 });
 
 export const HealthReport =
   mongoose.models.HealthReport ||

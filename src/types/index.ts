@@ -1,9 +1,18 @@
 export interface User {
   id: string;
+  client_id?: number;
   name: string;
   email: string;
   role: "user" | "admin";
   phone?: string;
+  mobile?: string;
+  city?: string;
+  state?: string;
+  age?: number;
+  gender?: string;
+  occupation?: string;
+  health_condition?: string;
+  beauty_goal?: string;
   dateOfBirth?: string;
 }
 
@@ -14,16 +23,18 @@ export interface AuthResponse {
 
 export interface HealthReport {
   _id: string;
-  userId: string | { _id: string; name: string; email: string };
-  reportDate: string;
-  bloodPressureSystolic: number;
-  bloodPressureDiastolic: number;
-  heartRate: number;
-  temperature: number;
-  weight: number;
-  glucose: number;
+  report_id: string;
+  client_id: number;
+  userId: string | { _id: string; name: string; email: string; client_id?: number };
+  report_date: string;
+  hemoglobin: number;
+  vitamin_d: number;
   cholesterol: number;
-  notes?: string;
+  blood_sugar: number;
+  creatinine: number;
+  urine_protein: string;
+  bmi: number;
+  doctor_notes?: string;
   uploadedBy?: { name: string; email: string };
   createdAt: string;
 }
@@ -45,10 +56,19 @@ export interface PaginatedResponse<T> {
 
 export interface UserListItem {
   _id: string;
+  client_id?: number;
   name: string;
   email: string;
   role: string;
   phone?: string;
+  mobile?: string;
+  city?: string;
+  state?: string;
+  age?: number;
+  gender?: string;
+  occupation?: string;
+  health_condition?: string;
+  beauty_goal?: string;
   dateOfBirth?: string;
   reportCount: number;
   latestReportDate?: string;
@@ -64,7 +84,9 @@ export interface ApiError {
 export interface CsvUploadResult {
   successCount: number;
   failedCount: number;
-  errors: { row: number; email: string; message: string }[];
+  alreadyExistsCount?: number;
+  clientIdConflictCount?: number;
+  errors: { row: number; email: string; message: string; type?: string; client_id?: number }[];
 }
 
 export interface DashboardStats {

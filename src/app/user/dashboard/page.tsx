@@ -8,7 +8,7 @@ import { HealthReportCard } from "@/components/HealthReportCard";
 import { PaginationControls } from "@/components/PaginationControls";
 import { Card } from "@/components/ui/Card";
 import { formatDate } from "@/lib/utils";
-import { Activity, Calendar, FileText } from "lucide-react";
+import { Activity, Calendar, FileText, Droplet } from "lucide-react";
 
 export default function UserDashboardPage() {
   const user = getStoredUser();
@@ -82,12 +82,12 @@ export default function UserDashboardPage() {
         <StatCard
           icon={Calendar}
           label="Latest Checkup"
-          value={latestReport ? formatDate(latestReport.reportDate) : "N/A"}
+          value={latestReport ? formatDate(latestReport.report_date) : "N/A"}
         />
         <StatCard
-          icon={Activity}
-          label="Heart Rate"
-          value={latestReport ? `${latestReport.heartRate} bpm` : "N/A"}
+          icon={Droplet}
+          label="Blood Sugar"
+          value={latestReport ? `${latestReport.blood_sugar} mg/dL` : "N/A"}
         />
       </div>
 
@@ -113,22 +113,26 @@ export default function UserDashboardPage() {
                   <thead>
                     <tr className="border-b border-gray-100">
                       <th className="text-left py-3 px-2 font-medium text-gray-500">Date</th>
-                      <th className="text-left py-3 px-2 font-medium text-gray-500">BP</th>
-                      <th className="text-left py-3 px-2 font-medium text-gray-500">Heart Rate</th>
-                      <th className="text-left py-3 px-2 font-medium text-gray-500">Glucose</th>
-                      <th className="text-left py-3 px-2 font-medium text-gray-500">Weight</th>
+                      <th className="text-left py-3 px-2 font-medium text-gray-500">Report ID</th>
+                      <th className="text-left py-3 px-2 font-medium text-gray-500">Hemoglobin</th>
+                      <th className="text-left py-3 px-2 font-medium text-gray-500">Vitamin D</th>
+                      <th className="text-left py-3 px-2 font-medium text-gray-500">Blood Sugar</th>
+                      <th className="text-left py-3 px-2 font-medium text-gray-500">Cholesterol</th>
+                      <th className="text-left py-3 px-2 font-medium text-gray-500">Creatinine</th>
+                      <th className="text-left py-3 px-2 font-medium text-gray-500">BMI</th>
                     </tr>
                   </thead>
                   <tbody>
                     {history.data.map((report) => (
                       <tr key={report._id} className="border-b border-gray-50 hover:bg-gray-50">
-                        <td className="py-3 px-2">{formatDate(report.reportDate)}</td>
-                        <td className="py-3 px-2">
-                          {report.bloodPressureSystolic}/{report.bloodPressureDiastolic}
-                        </td>
-                        <td className="py-3 px-2">{report.heartRate} bpm</td>
-                        <td className="py-3 px-2">{report.glucose} mg/dL</td>
-                        <td className="py-3 px-2">{report.weight} lbs</td>
+                        <td className="py-3 px-2 font-medium text-gray-900">{formatDate(report.report_date)}</td>
+                        <td className="py-3 px-2 text-gray-600">{report.report_id}</td>
+                        <td className="py-3 px-2">{report.hemoglobin} g/dL</td>
+                        <td className="py-3 px-2">{report.vitamin_d} ng/mL</td>
+                        <td className="py-3 px-2">{report.blood_sugar} mg/dL</td>
+                        <td className="py-3 px-2">{report.cholesterol} mg/dL</td>
+                        <td className="py-3 px-2">{report.creatinine} mg/dL</td>
+                        <td className="py-3 px-2">{report.bmi}</td>
                       </tr>
                     ))}
                   </tbody>

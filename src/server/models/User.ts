@@ -6,10 +6,20 @@ export interface IUser extends Document {
   _id: Types.ObjectId;
   name: string;
   email: string;
-  password: string;
+  password?: string;
   role: UserRole;
   phone?: string;
   dateOfBirth?: Date;
+  client_id?: number;
+  mobile?: string;
+  city?: string;
+  state?: string;
+  age?: number;
+  gender?: string;
+  occupation?: string;
+  health_condition?: string;
+  beauty_goal?: string;
+  isRegistered?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,7 +42,7 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: false,
       minlength: 8,
       select: false,
     },
@@ -48,6 +58,47 @@ const userSchema = new Schema<IUser>(
     },
     dateOfBirth: {
       type: Date,
+    },
+    client_id: {
+      type: Number,
+      unique: true,
+      sparse: true,
+      index: true,
+    },
+    mobile: {
+      type: String,
+      trim: true,
+    },
+    city: {
+      type: String,
+      trim: true,
+    },
+    state: {
+      type: String,
+      trim: true,
+    },
+    age: {
+      type: Number,
+    },
+    gender: {
+      type: String,
+      trim: true,
+    },
+    occupation: {
+      type: String,
+      trim: true,
+    },
+    health_condition: {
+      type: String,
+      trim: true,
+    },
+    beauty_goal: {
+      type: String,
+      trim: true,
+    },
+    isRegistered: {
+      type: Boolean,
+      default: false,
     },
   },
   {

@@ -83,7 +83,8 @@ export default function AdminDashboardPage() {
                 <tr className="border-b border-gray-100">
                   <th className="text-left py-3 px-2 font-medium text-gray-500">Patient</th>
                   <th className="text-left py-3 px-2 font-medium text-gray-500">Report Date</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">BP</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-500">Report ID</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-500">Blood Sugar</th>
                   <th className="text-left py-3 px-2 font-medium text-gray-500">Uploaded</th>
                 </tr>
               </thead>
@@ -102,10 +103,9 @@ export default function AdminDashboardPage() {
                           : ""}
                       </p>
                     </td>
-                    <td className="py-3 px-2">{formatDate(report.reportDate)}</td>
-                    <td className="py-3 px-2">
-                      {report.bloodPressureSystolic}/{report.bloodPressureDiastolic}
-                    </td>
+                    <td className="py-3 px-2">{formatDate(report.report_date)}</td>
+                    <td className="py-3 px-2 font-mono text-xs text-gray-600">{report.report_id}</td>
+                    <td className="py-3 px-2">{report.blood_sugar} mg/dL</td>
                     <td className="py-3 px-2">{formatDateTime(report.createdAt)}</td>
                   </tr>
                 ))}

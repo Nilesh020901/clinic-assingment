@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
     const user = requireAuth(request);
     requireRole(user, "user");
 
+    console.log("Latest reports API called by user:", user);
+
     const report = await withDb(() => getLatestReport(user.userId));
 
     return NextResponse.json({ success: true, data: report });
