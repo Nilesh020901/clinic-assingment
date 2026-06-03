@@ -93,4 +93,21 @@ export interface DashboardStats {
   totalUsers: number;
   totalReports: number;
   recentReports: HealthReport[];
+  cohortStats?: {
+    averages: {
+      blood_sugar: number;
+      cholesterol: number;
+      vitamin_d: number;
+      hemoglobin: number;
+      creatinine: number;
+      bmi: number;
+    };
+    bloodSugarBreakdown: { normal: number; prediabetes: number; diabetes: number };
+    vitaminDBreakdown: { deficient: number; insufficient: number; normal: number };
+    cholesterolBreakdown: { desirable: number; borderline: number; high: number };
+    bmiBreakdown: { underweight: number; normal: number; overweight: number; obese: number };
+    hemoglobinBreakdown: { low: number; normal: number; high: number };
+    creatinineBreakdown: { normal: number; high: number };
+  };
 }
+

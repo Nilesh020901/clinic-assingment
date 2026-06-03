@@ -53,7 +53,13 @@ export async function searchUsers(
       query.$or = [{ client_id: numericSearch }];
     } else {
       const searchRegex = new RegExp(searchTrimmed, "i");
-      query.$or = [{ name: searchRegex }, { email: searchRegex }, { city: searchRegex }];
+      query.$or = [
+        { name: searchRegex },
+        { email: searchRegex },
+        { city: searchRegex },
+        { health_condition: searchRegex },
+        { beauty_goal: searchRegex }
+      ];
     }
   }
 
@@ -576,7 +582,7 @@ export async function importHealthReportsFromCsv(
 }
 
 export async function getDashboardStats() {
-  const [totalUsers, totalReports, recentReports] = await Promise.all([
+  const [totalUsers, totalReports, recentReports, latestReports] = await Promise.all([
     User.countDocuments({ role: "user" }),
     HealthReport.countDocuments(),
     HealthReport.find()
@@ -584,7 +590,99 @@ export async function getDashboardStats() {
       .limit(5)
       .populate("userId", "name email client_id")
       .lean(),
+    HealthReport.aggregate([
+      { $sort: { report_date: -1 } },
+      {
+        $group: {
+          _id: "$userId",
+          latestReport: { $first: "$$ROOT" }
+        }
+      }
+    ])
   ]);
 
-  return { totalUsers, totalReports, recentReports };
+  const cohortStats = {
+    averages: {
+      blood_sugar: 0,
+      cholesterol: 0,
+      vitamin_d: 0,
+      hemoglobin: 0,
+      creatinine: 0,
+      bmi: 0
+    },
+    bloodSugarBreakdown: { normal: 0, prediabetes: 0, diabetes: 0 },
+    vitaminDBreakdown: { deficient: 0, insufficient: 0, normal: 0 },
+    cholesterolBreakdown: { desirable: 0, borderline: 0, high: 0 },
+    bmiBreakdown: { underweight: 0, normal: 0, overweight: 0, obese: 0 },
+    hemoglobinBreakdown: { low: 0, normal: 0, high: 0 },
+    creatinineBreakdown: { normal: 0, high: 0 }
+  };
+
+  const count = latestReports.length;
+
+  if (count > 0) {
+    let sumBloodSugar = 0;
+    let sumCholesterol = 0;
+    let sumVitaminD = 0;
+    let sumHemoglobin = 0;
+    let sumCreatinine = 0;
+    let sumBmi = 0;
+
+    latestReports.forEach(({ latestReport: r }) => {
+      sumBloodSugar += r.blood_sugar || 0;
+      sumCholesterol += r.cholesterol || 0;
+      sumVitaminD += r.vitamin_d || 0;
+      sumHemoglobin += r.hemoglobin || 0;
+      sumCreatinine += r.creatinine || 0;
+      sumBmi += r.bmi || 0;
+
+      // Blood Sugar
+      const bs = r.blood_sugar;
+      if (bs < 100) cohortStats.bloodSugarBreakdown.normal++;
+      else if (bs < 126) cohortStats.bloodSugarBreakdown.prediabetes++;
+      else cohortStats.bloodSugarBreakdown.diabetes++;
+
+      // Vitamin D
+      const vd = r.vitamin_d;
+      if (vd < 20) cohortStats.vitaminDBreakdown.deficient++;
+      else if (vd < 30) cohortStats.vitaminDBreakdown.insufficient++;
+      else cohortStats.vitaminDBreakdown.normal++;
+
+      // Cholesterol
+      const ch = r.cholesterol;
+      if (ch < 200) cohortStats.cholesterolBreakdown.desirable++;
+      else if (ch < 240) cohortStats.cholesterolBreakdown.borderline++;
+      else cohortStats.cholesterolBreakdown.high++;
+
+      // BMI
+      const bmi = r.bmi;
+      if (bmi < 18.5) cohortStats.bmiBreakdown.underweight++;
+      else if (bmi < 25.0) cohortStats.bmiBreakdown.normal++;
+      else if (bmi < 30.0) cohortStats.bmiBreakdown.overweight++;
+      else cohortStats.bmiBreakdown.obese++;
+
+      // Hemoglobin
+      const hb = r.hemoglobin;
+      if (hb < 12.0) cohortStats.hemoglobinBreakdown.low++;
+      else if (hb <= 17.5) cohortStats.hemoglobinBreakdown.normal++;
+      else cohortStats.hemoglobinBreakdown.high++;
+
+      // Creatinine
+      const cr = r.creatinine;
+      if (cr <= 1.2) cohortStats.creatinineBreakdown.normal++;
+      else cohortStats.creatinineBreakdown.high++;
+    });
+
+    cohortStats.averages = {
+      blood_sugar: Math.round((sumBloodSugar / count) * 10) / 10,
+      cholesterol: Math.round((sumCholesterol / count) * 10) / 10,
+      vitamin_d: Math.round((sumVitaminD / count) * 10) / 10,
+      hemoglobin: Math.round((sumHemoglobin / count) * 10) / 10,
+      creatinine: Math.round((sumCreatinine / count) * 100) / 100,
+      bmi: Math.round((sumBmi / count) * 10) / 10
+    };
+  }
+
+  return { totalUsers, totalReports, recentReports, cohortStats };
 }
+
